@@ -30,7 +30,7 @@ const Create = () => {
     const token = localStorage.getItem('token');
 
     try {
-      await apiurl.post('/api/blogs',
+      await api.post('/api/blogs',
         {
           title: formData.title,
           content: formData.content
