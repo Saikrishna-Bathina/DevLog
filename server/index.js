@@ -9,10 +9,22 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+const allowedOrigins = [
+  'http://localhost:5000',
+  'https://devlog-5x6w.onrender.com'
+];
+
 app.use(cors({
-  origin: 'http://localhost:5173', 
-  credentials: true                 
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
+  credentials: true
 }));
+
 
 
 app.use('/api/auth', authRoutes);
