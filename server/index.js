@@ -10,8 +10,8 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 const allowedOrigins = [
-  'http://localhost:5000',
-  'https://devlog-5x6w.onrender.com'
+  'http://localhost:5173',
+  'https://devlog-client.onrender.com' // your deployed frontend
 ];
 
 app.use(cors({
