@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 const Create = () => {
   const [formData, setFormData] = useState({
@@ -29,7 +30,7 @@ const Create = () => {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.post('http://localhost:5000/api/blogs',
+      await apiurl.post('/api/blogs',
         {
           title: formData.title,
           content: formData.content

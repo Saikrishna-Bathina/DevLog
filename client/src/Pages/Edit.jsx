@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from '../api/axios';
 
 const Edit = () => {
   const { id } = useParams();
@@ -12,7 +13,7 @@ const Edit = () => {
   });
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/blogs/${id}`)
+    api.get(`/api/blogs/${id}`)
       .then(res => {
         setFormData({
           title: res.data.title || '',
@@ -36,7 +37,7 @@ const Edit = () => {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.put(`http://localhost:5000/api/blogs/${id}`, {
+      await api.put(`/api/blogs/${id}`, {
         title: formData.title,
         content: formData.content
       }, {

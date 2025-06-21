@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import api from '../api/axios';
 
 const View = () => {
   const { id } = useParams();
@@ -8,7 +9,7 @@ const View = () => {
   const [blog, setBlog] = useState(null);
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/blogs/${id}`)
+    api.get(`/api/blogs/${id}`)
       .then(res => setBlog(res.data))
       .catch(err => console.error(err));
   }, [id]);
@@ -20,7 +21,7 @@ const View = () => {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.delete(`http://localhost:5000/api/blogs/${id}`, {
+      await api.delete(`/api/blogs/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

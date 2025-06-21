@@ -9,12 +9,15 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', 
+  credentials: true                 
+}));
 
-// Auth routes (register/login)
+
 app.use('/api/auth', authRoutes);
 
-// MongoDB connection
+
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -45,7 +48,7 @@ app.get('/api/blogs/:id', async (req, res) => {
   }
 });
 
-// Create blog (protected)
+
 app.post('/api/blogs', auth, async (req, res) => {
   const { title, content } = req.body;
 
@@ -67,7 +70,7 @@ app.post('/api/blogs', auth, async (req, res) => {
   }
 });
 
-// Update blog (protected, ownership check)
+
 app.put('/api/blogs/:id', auth, async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
@@ -86,7 +89,7 @@ app.put('/api/blogs/:id', auth, async (req, res) => {
   }
 });
 
-// Delete blog (protected, ownership check)
+
 app.delete('/api/blogs/:id', auth, async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id);
@@ -102,6 +105,6 @@ app.delete('/api/blogs/:id', auth, async (req, res) => {
   }
 });
 
-// Start server
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

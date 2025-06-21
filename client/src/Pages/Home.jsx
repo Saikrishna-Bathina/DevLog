@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import api from '../api/axios';
 
 const Home = () => {
   const [blogs, setBlogs] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/blogs')
+    api.get('/api/blogs')
       .then(res => setBlogs(res.data))
       .catch(err => console.error(err));
   }, []);

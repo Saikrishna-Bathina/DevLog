@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 export default function Register() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -10,26 +11,20 @@ export default function Register() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setError('');
+const handleSubmit = async e => {
+  e.preventDefault();
+  setError('');
 
-    try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+  try {
+    const res = await api.post('/api/auth/register', formData);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to register');
-
-      localStorage.setItem('token', data.token);
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+    localStorage.setItem('token', res.data.token);
+    navigate('/');
+  } catch (err) {
+    const message = err.response?.data?.message || 'Failed to register';
+    setError(message);
+  }
+};
 
   return (
     <form

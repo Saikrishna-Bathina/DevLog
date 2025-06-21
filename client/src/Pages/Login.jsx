@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../api/axios';
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -10,26 +11,23 @@ export default function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    setError('');
 
-    try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+const handleSubmit = async e => {
+  e.preventDefault();
+  setError('');
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to login');
+  try {
+    const res = await api.post('/api/auth/login', formData);
 
-      localStorage.setItem('token', data.token);
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+
+    localStorage.setItem('token', res.data.token);
+    navigate('/');
+  } catch (err) {
+    const message =
+      err.response?.data?.message || 'Failed to login';
+    setError(message);
+  }
+};
 
   return (
     <form
