@@ -43,7 +43,7 @@ const Create = () => {
       showToast('Publish successful 🎉', 'success'); 
       navigate('/');
     } catch (err) {
-      toast.error("Failed to create blog");
+      showToast('Login to Publish', 'error'); 
       console.error(err);
     } finally {
       setLoading(false);
