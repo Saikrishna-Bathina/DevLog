@@ -8,7 +8,7 @@ const authMiddleware = (req, res, next) => {
   if (!authHeader)
     return res.status(401).json({ message: 'No token, access denied.' });
 
-  // Authorization header format: "Bearer <token>"
+
   const token = authHeader.split(' ')[1];
 
   if (!token)
@@ -16,7 +16,7 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Attach user payload to request object
+    req.user = decoded; 
     next();
   } catch (err) {
     res.status(401).json({ message: 'Invalid token.' });

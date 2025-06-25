@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import api from '../api/axios';
+import { showToast } from '../utils/showToast';
 
 const View = () => {
   const { id } = useParams();
@@ -26,42 +26,64 @@ const View = () => {
           Authorization: `Bearer ${token}`
         }
       });
+      showToast('✅ Blog deleted successfully!', 'success');
       navigate('/');
     } catch (err) {
       console.error(err);
-      alert("Unauthorized or error while deleting.");
+      showToast('❌ Only the blog author can delete this blog.', 'error');
     }
   };
 
-  if (!blog) return <p className="text-center p-6">Loading blog...</p>;
+  if (!blog) return (
+    <div className="min-h-[91.3vh] flex justify-center items-center bg-base-200 text-center">
+      <p className="text-lg text-base-content">Loading blog...</p>
+    </div>
+  );
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2">{blog.title}</h1>
-      <p className="text-gray-500 mb-4">
-        By {blog.author?.name || 'Anonymous'} on {new Date(blog.createdAt).toLocaleDateString()}
-      </p>
-      <p className="mb-6 whitespace-pre-line break-words">{blog.content}</p>
+    <>
+      {/* DaisyUI toast container */}
+      <div id="toast-container" className="toast toast-top toast-end fixed z-50" />
 
-      <div className="flex gap-4">
-        <Link to={`/edit/${blog._id}`}>
-          <button className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
-            ✏️ Edit
-          </button>
-        </Link>
-        <button
-          onClick={handleDelete}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          🗑️ Delete
-        </button>
-        <Link to="/">
-          <button className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
-            ← Back
-          </button>
-        </Link>
+      <div className="min-h-[91.3vh] bg-base-200 flex justify-center px-4 py-10">
+        <div className="w-full max-w-3xl bg-base-100 p-8 rounded-2xl shadow-md border border-base-300">
+          <img
+            src={blog.coverImage}
+            alt={blog.title}
+            className="w-full h-56 object-cover rounded-xl mb-6"
+          />
+
+          <h1 className="text-3xl font-bold mb-2 text-primary">{blog.title}</h1>
+          <p className="text-sm text-base-content mb-6">
+            By <span className="font-semibold">{blog.author?.name || 'Anonymous'}</span> on{' '}
+            {new Date(blog.createdAt).toLocaleDateString()}
+          </p>
+
+          <div className="prose max-w-none mb-8 text-base-content">
+            <p className="whitespace-pre-line break-words">{blog.content}</p>
+          </div>
+
+          <div className="flex flex-wrap gap-4 justify-end">
+            <Link to={`/edit/${blog._id}`}>
+              <button className="btn btn-warning text-white rounded-xl">
+                ✏️ Edit
+              </button>
+            </Link>
+            <button
+              onClick={handleDelete}
+              className="btn btn-error text-white rounded-xl"
+            >
+              🗑️ Delete
+            </button>
+            <Link to="/">
+              <button className="btn btn-outline rounded-xl">
+                ← Back
+              </button>
+            </Link>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

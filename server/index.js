@@ -4,14 +4,15 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const auth = require('./middleware/auth');
 const Blog = require('./models/Blog');
+const userRoutes = require('./routes/user');
 require('dotenv').config();
 
-
 const app = express();
-app.use(express.json());
+
+
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://devlog-client.onrender.com' // your deployed frontend
+  'https://devlog-client.onrender.com' 
 ];
 
 app.use(cors({
@@ -26,10 +27,9 @@ app.use(cors({
 }));
 
 
-
+app.use(express.json());
+app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
-
-
 
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -62,16 +62,17 @@ app.get('/api/blogs/:id', async (req, res) => {
 
 
 app.post('/api/blogs', auth, async (req, res) => {
-  const { title, content } = req.body;
+  const { title, content, coverImage } = req.body; // ✅ include coverImage
 
-  if (!title || !content) {
-    return res.status(400).json({ message: 'Title and content are required.' });
+  if (!title || !content || !coverImage) {
+    return res.status(400).json({ message: 'Title, content, and cover image are required.' });
   }
 
   try {
     const blog = new Blog({
       title,
       content,
+      coverImage, // ✅ store Cloudinary URL
       author: req.user.id
     });
 

@@ -1,103 +1,78 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
+import { toast } from 'react-toastify';
 
 export default function Register() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async e => {
-  e.preventDefault();
-  setError('');
+  const handleSubmit = async e => {
+    e.preventDefault();
 
-  try {
-    const res = await api.post('/api/auth/register', formData);
-
-    localStorage.setItem('token', res.data.token);
-    navigate('/');
-  } catch (err) {
-    const message = err.response?.data?.message || 'Failed to register';
-    setError(message);
-  }
-};
+    try {
+      const res = await api.post('/api/auth/register', formData);
+      localStorage.setItem('token', res.data.token);
+      toast.success("Registration successful!");
+      navigate('/');
+    } catch (err) {
+      const message = err.response?.data?.message || 'Failed to register';
+      toast.error(message);
+    }
+  };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      style={{
-        maxWidth: '400px',
-        margin: '40px auto',
-        padding: '20px',
-        border: '1px solid #ccc',
-        borderRadius: '6px',
-        boxShadow: '0 0 8px rgba(0,0,0,0.1)'
-      }}
-    >
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>Register</h2>
-      {error && (
-        <p style={{ color: 'red', marginBottom: '10px', textAlign: 'center' }}>{error}</p>
-      )}
-      <input
-        name="name"
-        type="text"
-        placeholder="Full Name"
-        onChange={handleChange}
-        required
-        style={{
-          width: '100%',
-          padding: '10px',
-          marginBottom: '15px',
-          borderRadius: '4px',
-          border: '1px solid #ccc'
-        }}
-      />
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        onChange={handleChange}
-        required
-        style={{
-          width: '100%',
-          padding: '10px',
-          marginBottom: '15px',
-          borderRadius: '4px',
-          border: '1px solid #ccc'
-        }}
-      />
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        onChange={handleChange}
-        required
-        style={{
-          width: '100%',
-          padding: '10px',
-          marginBottom: '20px',
-          borderRadius: '4px',
-          border: '1px solid #ccc'
-        }}
-      />
-      <button
-        type="submit"
-        style={{
-          width: '100%',
-          padding: '12px',
-          backgroundColor: '#28a745',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        Register
-      </button>
-    </form>
+    <div className="min-h-[91.3vh] flex justify-center items-center px-4 bg-base-200">
+
+      <div className="w-full max-w-md bg-base-100 p-8 rounded-2xl shadow-md border border-base-100">
+        <h2 className="text-2xl font-bold mb-6 text-center text-primary">Create Account</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            name="name"
+            type="text"
+            placeholder="Full Name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="input input-bordered w-full rounded-xl bg-zinc-950 text-white"
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="input input-bordered w-full rounded-xl bg-zinc-950 text-white"
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="input input-bordered w-full rounded-xl bg-zinc-950 text-white"
+          />
+          <button
+            type="submit"
+            className="btn bg-primary text-base-100 w-full rounded-xl hover:bg-primary-focus"
+          >
+            Register
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-base-content">
+          Already registered?{' '}
+          <Link to="/login" className="text-info font-semibold hover:underline">
+            Login here
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

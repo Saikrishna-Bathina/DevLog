@@ -1,89 +1,94 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { showToast } from '../utils/showToast';
 
 const Create = () => {
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    author: ''
-  });
-
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
+  const handleImageUpload = async () => {
+    const formData = new FormData();
+    formData.append('file', image);
+    formData.append('upload_preset', 'devlog_preset'); // replace with your Cloudinary preset
+
+    const response = await fetch('https://api.cloudinary.com/v1_1/dagsneuyk/image/upload', {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+    return data.secure_url;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!formData.title || !formData.content) {
-      alert("Title and Content are required.");
-      return;
-    }
-
-    const token = localStorage.getItem('token');
+    setLoading(true);
 
     try {
-      await api.post('/api/blogs',
-        {
-          title: formData.title,
-          content: formData.content
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      const imageUrl = await handleImageUpload();
+      const token = localStorage.getItem('token');
+      await api.post('/api/blogs', {
+        title,
+        content,
+        coverImage: imageUrl
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      showToast('Publish successful 🎉', 'success'); 
       navigate('/');
     } catch (err) {
+      toast.error("Failed to create blog");
       console.error(err);
-      alert("Unauthorized. Please login again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">📝 Create New Blog</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <input
-          type="text"
-          name="title"
-          placeholder="Blog Title"
-          className="border p-2 rounded"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-        <textarea
-          name="content"
-          placeholder="Write your blog content here..."
-          className="border p-2 h-40 rounded"
-          value={formData.content}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="author"
-          placeholder="Author Name (Optional)"
-          className="border p-2 rounded"
-          value={formData.author}
-          onChange={handleChange}
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          Publish Blog
-        </button>
-      </form>
+    <div className="min-h-[91.3vh] bg-base-200 w-full flex justify-center items-start px-4 py-8">
+      <div className="w-full max-w-2xl bg-base-100 p-8 rounded-2xl shadow-md border border-base-300">
+        <h1 className="text-2xl font-bold mb-6 text-primary">📝 Create New Blog</h1>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            className="input input-bordered w-full rounded-xl bg-zinc-950 text-white"
+          />
+
+          <textarea
+            placeholder="Content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+            className="textarea textarea-bordered h-40 w-full rounded-xl bg-zinc-950 text-white"
+          />
+
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+            required
+            className="file-input file-input-bordered w-full rounded-xl"
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn bg-primary text-base-100 rounded-xl hover:bg-primary-focus"
+          >
+            {loading ? 'Posting...' : 'Create Blog'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
